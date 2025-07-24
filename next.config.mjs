@@ -2,7 +2,6 @@
 const nextConfig = {
   // Basic configuration for maximum compatibility
   reactStrictMode: true,
-  swcMinify: true,
   
   // Essential overrides
   eslint: {
@@ -29,7 +28,7 @@ const nextConfig = {
   
   // Experimental features disabled for stability
   experimental: {
-    appDir: true,
+    // Remove deprecated appDir (it's default in app router)
     // Disable HTTP/2+ features that might cause parsing issues
     serverMinification: false,
     serverSourceMaps: false,
