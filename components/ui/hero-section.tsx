@@ -75,7 +75,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language = 'es' }) => 
             <TextRotator
               words={content.dynamicWords}
               interval={3000}
-              className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-blue-300 font-light"
+              className="font-light"
+              glowEffect={true}
+              glowColor="#FFF9E1"
+              glowIntensity={1.2}
             />
           </h1>
         </motion.div>
