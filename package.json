@@ -1,12 +1,16 @@
 {
-  "name": "my-v0-project",
-  "version": "0.1.0",
+  "name": "traction-labs-design-kova-v4",
+  "version": "4.1.0",
   "private": true,
+  "description": "KOVA V4 - Ethereal Depth by Traction Labs Design",
+  "author": "Traction Labs Design",
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "node server.js",
+    "dev-next": "next dev",
     "lint": "next lint",
-    "start": "next start",
+    "start": "NODE_ENV=production node server.js",
+    "start-next": "next start",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

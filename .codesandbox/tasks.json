@@ -15,16 +15,16 @@
   ],
   "tasks": {
     "dev": {
-      "name": "Start Development Server",
-      "command": "NODE_ENV=development npm run dev -- --hostname 0.0.0.0",
+      "name": "Traction Labs Design - Development Server",
+      "command": "NODE_ENV=development HOSTNAME=0.0.0.0 PORT=3000 npm run dev",
       "runAtStart": true,
       "preview": {
         "port": 3000
       }
     },
     "dev-safe": {
-      "name": "Start Development Server (Safe Mode)",
-      "command": "NODE_ENV=development npm run dev -- --hostname 0.0.0.0 --port 3000 --turbo=false",
+      "name": "Traction Labs Design - Safe Mode",
+      "command": "NODE_ENV=development HOSTNAME=0.0.0.0 PORT=3000 npm run dev-next -- --turbo=false",
       "preview": {
         "port": 3000
       }
@@ -34,8 +34,8 @@
       "command": "npm run build"
     },
     "start": {
-      "name": "Start Production Server",
-      "command": "npm run start -- --hostname 0.0.0.0",
+      "name": "Traction Labs Design - Production Server",
+      "command": "NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000 npm run start",
       "preview": {
         "port": 3000
       }
