@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from "react"
+import React, { useMemo, useState, useEffect } from "react"
 import { type MotionValue, motion, useSpring, useTransform } from "framer-motion"
 
 interface CelestialArcProps {
@@ -27,16 +27,22 @@ export const CelestialArc: React.FC<CelestialArcProps> = ({
   parallaxStrength,
   prefersReducedMotion = false,
 }) => {
+  const [isClient, setIsClient] = useState(false)
+  
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   // Memoized transform functions for better performance
   const transformX = useMemo(() => (val: number) => {
-    if (typeof window === "undefined") return 0
+    if (!isClient) return 0
     return (val / window.innerWidth - 0.5) * 2 * parallaxStrength
-  }, [parallaxStrength])
+  }, [parallaxStrength, isClient])
   
   const transformY = useMemo(() => (val: number) => {
-    if (typeof window === "undefined") return 0
+    if (!isClient) return 0
     return (val / window.innerHeight - 0.5) * 2 * parallaxStrength
-  }, [parallaxStrength])
+  }, [parallaxStrength, isClient])
 
   const transformedX = useTransform(mouseX, transformX)
   const transformedY = useTransform(mouseY, transformY)
@@ -44,17 +50,34 @@ export const CelestialArc: React.FC<CelestialArcProps> = ({
   const x = useSpring(transformedX, springConfig)
   const y = useSpring(transformedY, springConfig)
 
+  // Prevent hydration mismatch by not rendering until client is ready
+  if (!isClient) {
+    return (
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: Number(zIndex),
+          transform: `scale3d(${scale}, ${scale}, 1)`,
+          willChange: "transform",
+          backfaceVisibility: "hidden",
+          perspective: "1000px",
+          opacity: 0,
+        }}
+      />
+    )
+  }
+
   return (
     <motion.div
       className="absolute inset-0 pointer-events-none"
       style={{
         x,
         y,
-        zIndex,
+        zIndex: Number(zIndex),
         transform: `scale3d(${scale}, ${scale}, 1)`,
         willChange: "transform",
         backfaceVisibility: "hidden",
-        perspective: 1000,
+        perspective: "1000px",
       }}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity, scale }}
