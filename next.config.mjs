@@ -23,8 +23,8 @@ const nextConfig = {
     appDir: true,
   },
   
-  // Output configuration for better compatibility
-  output: 'standalone',
+  // Remove standalone output for CodeSandbox compatibility
+  // output: 'standalone',
 }
 
 export default nextConfig

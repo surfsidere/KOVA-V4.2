@@ -5,8 +5,8 @@
       "command": "npm install"
     },
     {
-      "name": "Build Project",
-      "command": "npm run build"
+      "name": "Clean Build Artifacts",
+      "command": "rm -rf .next && rm -rf node_modules/.cache"
     }
   ],
   "tasks": {
@@ -28,6 +28,14 @@
       "preview": {
         "port": 3000
       }
+    },
+    "clean": {
+      "name": "Clean Build",
+      "command": "rm -rf .next && rm -rf node_modules/.cache"
+    },
+    "rebuild": {
+      "name": "Clean and Rebuild",
+      "command": "rm -rf .next && npm run build"
     },
     "lint": {
       "name": "Run Linter",
