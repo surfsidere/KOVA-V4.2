@@ -1,10 +1,10 @@
 "use client"
 
-import type React from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion"
-import { useEffect, useRef, useState } from "react"
 import { CelestialArc } from "./celestial-arc"
 import { EtherealSpotlight } from "./ethereal-spotlight"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 const arcConfigurations = [
   { delay: 0, scale: 1.2, opacity: 0.3, zIndex: 10, parallaxStrength: -15 },
@@ -13,11 +13,14 @@ const arcConfigurations = [
   { delay: 0.9, scale: 0.6, opacity: 0.4, zIndex: 40, parallaxStrength: 5 },
 ]
 
-const springConfig = { stiffness: 100, damping: 20, mass: 0.5 }
+// Optimized spring configs for different use cases
+const scrollSpringConfig = { stiffness: 80, damping: 18, mass: 0.4, restSpeed: 0.01 }
+const mouseSpringConfig = { stiffness: 60, damping: 15, mass: 0.3, restSpeed: 0.01 }
 
 export const EtherealDepth: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isLoaded, setIsLoaded] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
 
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
@@ -27,10 +30,11 @@ export const EtherealDepth: React.FC = () => {
     offset: ["start start", "end start"],
   })
 
-  const scale = useSpring(useTransform(scrollYProgress, [0, 1], [1, 1.5]), springConfig)
-  const y = useSpring(useTransform(scrollYProgress, [0, 1], [0, -200]), springConfig)
-  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0]), springConfig)
-  const maskOpacity = useSpring(useTransform(scrollYProgress, [0.8, 1], [0, 1]), springConfig)
+  // Optimized scroll transforms with better spring configs
+  const scale = useSpring(useTransform(scrollYProgress, [0, 1], [1, 1.5]), scrollSpringConfig)
+  const y = useSpring(useTransform(scrollYProgress, [0, 1], [0, -200]), scrollSpringConfig)
+  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0]), scrollSpringConfig)
+  const maskOpacity = useSpring(useTransform(scrollYProgress, [0.8, 1], [0, 1]), scrollSpringConfig)
 
   const spotlightBackground = useTransform<number[], string>(
     [mouseX, mouseY],
@@ -40,9 +44,17 @@ export const EtherealDepth: React.FC = () => {
 
   useEffect(() => {
     setIsLoaded(true)
+    // Throttled mouse tracking for better performance
+    let ticking = false
     const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX)
-      mouseY.set(e.clientY)
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          mouseX.set(e.clientX)
+          mouseY.set(e.clientY)
+          ticking = false
+        })
+        ticking = true
+      }
     }
     window.addEventListener("mousemove", handleMouseMove)
     return () => window.removeEventListener("mousemove", handleMouseMove)
@@ -58,7 +70,7 @@ export const EtherealDepth: React.FC = () => {
         scale,
         opacity,
         y,
-        willChange: "transform, opacity",
+        willChange: "transform",
       }}
     >
       <motion.div
@@ -69,7 +81,13 @@ export const EtherealDepth: React.FC = () => {
         transition={{ duration: 1.5 }}
       >
         {arcConfigurations.map((config) => (
-          <CelestialArc key={config.zIndex} mouseX={mouseX} mouseY={mouseY} {...config} />
+          <CelestialArc 
+            key={config.zIndex} 
+            mouseX={mouseX} 
+            mouseY={mouseY} 
+            prefersReducedMotion={prefersReducedMotion}
+            {...config} 
+          />
         ))}
 
         <motion.div
