@@ -7,13 +7,24 @@
     {
       "name": "Clean Build Artifacts",
       "command": "rm -rf .next && rm -rf node_modules/.cache"
+    },
+    {
+      "name": "Set Environment Variables",
+      "command": "echo 'NODE_ENV=development' > .env.local && echo 'NEXT_TELEMETRY_DISABLED=1' >> .env.local"
     }
   ],
   "tasks": {
     "dev": {
       "name": "Start Development Server",
-      "command": "npm run dev",
+      "command": "NODE_ENV=development npm run dev -- --hostname 0.0.0.0",
       "runAtStart": true,
+      "preview": {
+        "port": 3000
+      }
+    },
+    "dev-safe": {
+      "name": "Start Development Server (Safe Mode)",
+      "command": "NODE_ENV=development npm run dev -- --hostname 0.0.0.0 --port 3000 --turbo=false",
       "preview": {
         "port": 3000
       }
@@ -24,7 +35,7 @@
     },
     "start": {
       "name": "Start Production Server",
-      "command": "npm run start",
+      "command": "npm run start -- --hostname 0.0.0.0",
       "preview": {
         "port": 3000
       }
@@ -36,6 +47,10 @@
     "rebuild": {
       "name": "Clean and Rebuild",
       "command": "rm -rf .next && npm run build"
+    },
+    "fix-http": {
+      "name": "Fix HTTP Version Issues",
+      "command": "rm -rf .next && NODE_ENV=development npm run dev -- --hostname 0.0.0.0 --port 3000"
     },
     "lint": {
       "name": "Run Linter",
