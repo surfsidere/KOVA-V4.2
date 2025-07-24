@@ -1,17 +1,17 @@
 import { EtherealDepth } from "@/components/ui/ethereal-depth"
 import { HeroSection } from "@/components/ui/hero-section"
-import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { CodeSandboxErrorBoundary } from "@/components/ui/codesandbox-error-boundary"
 
 export default function Home() {
   return (
     <main className="relative bg-[#020010]">
-      <ErrorBoundary>
+      <CodeSandboxErrorBoundary>
         <EtherealDepth />
-      </ErrorBoundary>
+      </CodeSandboxErrorBoundary>
       <div className="relative z-10">
-        <ErrorBoundary>
+        <CodeSandboxErrorBoundary>
           <HeroSection language="es" />
-        </ErrorBoundary>
+        </CodeSandboxErrorBoundary>
         <div className="h-screen flex items-center justify-center pointer-events-none">
           <h2 className="text-4xl font-thin text-white/80">Scroll to explore</h2>
         </div>

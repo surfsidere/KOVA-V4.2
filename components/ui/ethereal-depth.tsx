@@ -46,21 +46,40 @@ export const EtherealDepth: React.FC = () => {
   useEffect(() => {
     setIsClient(true)
     setIsLoaded(true)
-    // Throttled mouse tracking for better performance
+    
+    // Safer mouse tracking with CodeSandbox compatibility
     let ticking = false
     const handleMouseMove = (e: MouseEvent) => {
-      if (!ticking) {
+      if (!ticking && !prefersReducedMotion) {
         requestAnimationFrame(() => {
-          mouseX.set(e.clientX)
-          mouseY.set(e.clientY)
+          try {
+            mouseX.set(e.clientX)
+            mouseY.set(e.clientY)
+          } catch (error) {
+            console.warn('Mouse tracking error:', error)
+          }
           ticking = false
         })
         ticking = true
       }
     }
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [mouseX, mouseY])
+
+    // Check if we're in a safe environment for mouse tracking
+    if (typeof window !== 'undefined' && !prefersReducedMotion) {
+      try {
+        window.addEventListener("mousemove", handleMouseMove, { passive: true })
+        return () => {
+          try {
+            window.removeEventListener("mousemove", handleMouseMove)
+          } catch (error) {
+            console.warn('Error removing mouse listener:', error)
+          }
+        }
+      } catch (error) {
+        console.warn('Mouse tracking not available:', error)
+      }
+    }
+  }, [mouseX, mouseY, prefersReducedMotion])
 
   return (
     <motion.div

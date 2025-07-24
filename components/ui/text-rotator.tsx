@@ -32,11 +32,25 @@ export const TextRotator: React.FC<TextRotatorProps> = ({
     // Reset index when words change
     setCurrentIndex(0)
 
-    const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length)
-    }, interval)
+    let timer: NodeJS.Timeout | null = null
+    
+    try {
+      timer = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length)
+      }, interval)
+    } catch (error) {
+      console.warn('Text rotation timer error:', error)
+    }
 
-    return () => clearInterval(timer)
+    return () => {
+      if (timer) {
+        try {
+          clearInterval(timer)
+        } catch (error) {
+          console.warn('Error clearing text rotation timer:', error)
+        }
+      }
+    }
   }, [words, interval])
 
   if (!words.length) return null
