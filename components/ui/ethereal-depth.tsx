@@ -20,6 +20,7 @@ const mouseSpringConfig = { stiffness: 60, damping: 15, mass: 0.3, restSpeed: 0.
 export const EtherealDepth: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   const prefersReducedMotion = useReducedMotion()
 
   const mouseX = useMotionValue(0)
@@ -43,6 +44,7 @@ export const EtherealDepth: React.FC = () => {
   )
 
   useEffect(() => {
+    setIsClient(true)
     setIsLoaded(true)
     // Throttled mouse tracking for better performance
     let ticking = false
@@ -80,7 +82,7 @@ export const EtherealDepth: React.FC = () => {
         animate={{ opacity: isLoaded ? 1 : 0 }}
         transition={{ duration: 1.5 }}
       >
-        {arcConfigurations.map((config) => (
+        {isClient && arcConfigurations.map((config) => (
           <CelestialArc 
             key={config.zIndex} 
             mouseX={mouseX} 
@@ -90,12 +92,14 @@ export const EtherealDepth: React.FC = () => {
           />
         ))}
 
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: spotlightBackground, willChange: "background" }}
-        />
+        {isClient && (
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: spotlightBackground, willChange: "background" }}
+          />
+        )}
 
-        {isLoaded && <EtherealSpotlight mouseX={mouseX} mouseY={mouseY} />}
+        {isClient && isLoaded && <EtherealSpotlight mouseX={mouseX} mouseY={mouseY} />}
 
         <motion.div
           className="absolute inset-0 z-50 pointer-events-none"

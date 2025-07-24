@@ -52,19 +52,7 @@ export const CelestialArc: React.FC<CelestialArcProps> = ({
 
   // Prevent hydration mismatch by not rendering until client is ready
   if (!isClient) {
-    return (
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          zIndex: Number(zIndex),
-          transform: `scale3d(${scale}, ${scale}, 1)`,
-          willChange: "transform",
-          backfaceVisibility: "hidden",
-          perspective: "1000px",
-          opacity: 0,
-        }}
-      />
-    )
+    return null
   }
 
   return (
