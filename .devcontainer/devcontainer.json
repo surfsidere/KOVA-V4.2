@@ -18,7 +18,11 @@
         "bradlc.vscode-tailwindcss",
         "formulahendry.auto-rename-tag",
         "dsznajder.es7-react-js-snippets",
-        "mgmcdermott.vscode-language-babel"
+        "mgmcdermott.vscode-language-babel",
+        "eamodio.gitlens",
+        "christian-kohler.path-intellisense",
+        "usernamehw.errorlens",
+        "codesandbox-io.codesandbox-vscode"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -31,14 +35,20 @@
           "javascriptreact",
           "typescript",
           "typescriptreact"
-        ]
+        ],
+        "git.autofetch": true,
+        "git.confirmSync": false,
+        "git.enableSmartCommit": true,
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "workbench.colorTheme": "Default Dark+",
+        "workbench.startupEditor": "none"
       }
     }
   },
 
   "forwardPorts": [3000],
   
-  "postCreateCommand": "npm install",
+  "postCreateCommand": "npm install && echo '🚀 KOVA V4 Environment Ready!'",
   
   "remoteUser": "node",
   
@@ -47,6 +57,8 @@
   "runArgs": ["--init"],
   
   "containerEnv": {
-    "NODE_ENV": "development"
+    "NODE_ENV": "development",
+    "CODESANDBOX": "true",
+    "NEXT_TELEMETRY_DISABLED": "1"
   }
 }

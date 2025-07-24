@@ -1,0 +1,25 @@
+{
+  "recommendations": [
+    // Essential for React/Next.js development
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    
+    // React/TypeScript development
+    "dsznajder.es7-react-js-snippets",
+    "formulahendry.auto-rename-tag",
+    "mgmcdermott.vscode-language-babel",
+    
+    // Git integration
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    
+    // Productivity
+    "christian-kohler.path-intellisense",
+    "aaron-bond.better-comments",
+    "usernamehw.errorlens",
+    
+    // CodeSandbox specific
+    "codesandbox-io.codesandbox-vscode"
+  ]
+}

@@ -1,0 +1,34 @@
+name: CodeSandbox Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - main
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Comment PR with CodeSandbox link
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber = context.issue.number;
+            const repo = context.repo.repo;
+            const owner = context.repo.owner;
+            const branch = context.payload.pull_request.head.ref;
+            
+            const codesandboxUrl = `https://codesandbox.io/p/github/${owner}/${repo}/tree/${branch}`;
+            
+            github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: owner,
+              repo: repo,
+              body: `🚀 **CodeSandbox Preview Ready!**\n\n[Open in CodeSandbox](${codesandboxUrl})\n\nThis preview will automatically update as you push new commits.`
+            });
