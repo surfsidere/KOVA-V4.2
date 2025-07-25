@@ -56,17 +56,28 @@ export const TextRotator: React.FC<TextRotatorProps> = ({
   if (!words.length) return null
 
   const glowStyle = glowEffect ? {
-    color: glowColor,
-    opacity: 0.8,
+    // Force solid pale yellow text color with high specificity
+    color: `${glowColor} !important`,
+    // Ensure no transparency
+    opacity: '1 !important',
+    // Remove any background clipping that might cause outline effect
+    backgroundClip: 'initial !important',
+    WebkitBackgroundClip: 'initial !important',
+    // Solid glow effect with layered shadows
     textShadow: `
-      0 0 ${8 * glowIntensity}px ${glowColor}CC,
-      0 0 ${16 * glowIntensity}px ${glowColor}99,
-      0 0 ${24 * glowIntensity}px ${glowColor}66,
-      0 0 ${32 * glowIntensity}px ${glowColor}33,
-      0 0 ${40 * glowIntensity}px ${glowColor}1A
+      0 0 ${4 * glowIntensity}px ${glowColor},
+      0 0 ${8 * glowIntensity}px ${glowColor},
+      0 0 ${12 * glowIntensity}px ${glowColor}E6,
+      0 0 ${16 * glowIntensity}px ${glowColor}CC,
+      0 0 ${20 * glowIntensity}px ${glowColor}99,
+      0 0 ${24 * glowIntensity}px ${glowColor}66
     `,
-    filter: `brightness(${1 + 0.15 * glowIntensity}) saturate(${1 + 0.1 * glowIntensity})`,
-    fontWeight: '300'
+    // Enhanced glow with filter effects
+    filter: `brightness(${1 + 0.2 * glowIntensity}) saturate(${1 + 0.15 * glowIntensity}) drop-shadow(0 0 ${6 * glowIntensity}px ${glowColor}80)`,
+    fontWeight: '300',
+    // Ensure solid text rendering
+    WebkitTextFillColor: glowColor,
+    WebkitTextStroke: 'initial'
   } : {}
 
   return (
