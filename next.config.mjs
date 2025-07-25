@@ -23,49 +23,14 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
   
-  // Bundle optimization
-  experimental: {
-    optimizeCss: true,
-    optimizePackageImports: [
-      '@radix-ui/react-accordion',
-      '@radix-ui/react-alert-dialog',
-      '@radix-ui/react-avatar',
-      '@radix-ui/react-checkbox',
-      '@radix-ui/react-collapsible',
-      '@radix-ui/react-context-menu',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-dropdown-menu',
-      'framer-motion',
-      'lenis'
-    ],
-  },
+  // Emergency: Disable all experimental features for build stability
+  // experimental: {
+  //   optimizeCss: true,
+  //   optimizePackageImports: [...],
+  // },
   
-  // Code splitting optimization
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-          radix: {
-            test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
-            name: 'radix',
-            chunks: 'all',
-          },
-          motion: {
-            test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
-            name: 'motion',
-            chunks: 'all',
-          },
-        },
-      }
-    }
-    return config
-  },
+  // Emergency: Disable custom webpack config for build stability
+  // webpack: (config, { isServer }) => { ... },
   
   // Headers for better CodeSandbox compatibility
   async headers() {
