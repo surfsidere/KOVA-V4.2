@@ -77,8 +77,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language = 'es' }) => 
               interval={3000}
               className="font-light"
               glowEffect={true}
-              glowColor="#FFF9E1"
-              glowIntensity={1.2}
+              glowColor="#FFFACD"
+              glowIntensity={0.8}
             />
           </h1>
         </motion.div>

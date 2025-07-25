@@ -59,12 +59,15 @@ export const TextRotator: React.FC<TextRotatorProps> = ({
     color: glowColor,
     opacity: 0.8,
     textShadow: `
-      0 0 ${20 * glowIntensity}px ${glowColor},
-      0 0 ${40 * glowIntensity}px ${glowColor},
-      0 0 ${60 * glowIntensity}px ${glowColor},
-      0 0 ${80 * glowIntensity}px ${glowColor}
+      0 0 ${15 * glowIntensity}px ${glowColor}99,
+      0 0 ${30 * glowIntensity}px ${glowColor}66,
+      0 0 ${45 * glowIntensity}px ${glowColor}33,
+      0 0 ${60 * glowIntensity}px ${glowColor}1A
     `,
-    filter: `brightness(${1 + 0.2 * glowIntensity})`
+    filter: `brightness(${1 + 0.1 * glowIntensity})`,
+    background: `radial-gradient(ellipse at center, ${glowColor}1A 0%, transparent 70%)`,
+    backgroundClip: 'text',
+    WebkitBackgroundClip: 'text'
   } : {}
 
   return (
