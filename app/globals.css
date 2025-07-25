@@ -92,3 +92,208 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Immersive Scroll System Styles */
+@layer base {
+  :root {
+    /* Immersive theme colors */
+    --ethereal-background: #020010;
+    --ethereal-foreground: #ffffff;
+    --ethereal-accent: #60a5fa;
+    --ethereal-muted: #1f2937;
+    --ethereal-border: #374151;
+    --ethereal-ring: #60a5fa;
+    --contrast-mode: 'dark';
+    --transition-progress: 1;
+    
+    /* Section states */
+    --section-progress: 0;
+    --section-active: 0;
+    --section-z-index: 0;
+    
+    /* Animation performance */
+    --will-change: auto;
+  }
+
+  /* Smooth transitions for contrast changes */
+  body {
+    transition: background-color 0.6s cubic-bezier(0.25, 0.1, 0.25, 1),
+                color 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  /* Contrast mode classes */
+  .contrast-light {
+    --ethereal-background: #ffffff;
+    --ethereal-foreground: #0a0a0a;
+    --ethereal-accent: #3b82f6;
+    --ethereal-muted: #f3f4f6;
+    --ethereal-border: #e5e7eb;
+    --ethereal-ring: #3b82f6;
+  }
+
+  .contrast-dark {
+    --ethereal-background: #020010;
+    --ethereal-foreground: #ffffff;
+    --ethereal-accent: #60a5fa;
+    --ethereal-muted: #1f2937;
+    --ethereal-border: #374151;
+    --ethereal-ring: #60a5fa;
+  }
+
+  .contrast-auto {
+    --ethereal-background: #0a0a23;
+    --ethereal-foreground: #ffffff;
+    --ethereal-accent: #8b5cf6;
+    --ethereal-muted: #1e1b4b;
+    --ethereal-border: #3730a3;
+    --ethereal-ring: #8b5cf6;
+  }
+
+  /* Transition states */
+  .contrast-transitioning {
+    pointer-events: none;
+  }
+
+  .contrast-transitioning * {
+    transition: all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+  }
+}
+
+@layer components {
+  /* Scroll section styles */
+  .scroll-section {
+    position: relative;
+    will-change: var(--will-change);
+  }
+
+  .scroll-section-active {
+    --section-active: 1;
+  }
+
+  .scroll-section-transitioning {
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  /* Z-index layer styles */
+  .z-layer-0 { --z-layer: 0; }
+  .z-layer-100 { --z-layer: 100; }
+  .z-layer-200 { --z-layer: 200; }
+  .z-layer-300 { --z-layer: 300; }
+  .z-layer-400 { --z-layer: 400; }
+  .z-layer-9999 { --z-layer: 9999; }
+
+  /* Parallax layer optimizations */
+  .parallax-layer {
+    will-change: transform;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+  }
+
+  .parallax-disabled {
+    will-change: auto;
+    transform: none !important;
+  }
+
+  .parallax-vertical {
+    --parallax-direction: 'vertical';
+  }
+
+  .parallax-horizontal {
+    --parallax-direction: 'horizontal';
+  }
+
+  .parallax-both {
+    --parallax-direction: 'both';
+  }
+
+  /* Scroll trigger styles */
+  .scroll-trigger {
+    will-change: transform, opacity;
+  }
+
+  .scroll-trigger-active {
+    --scroll-in-view: 1;
+  }
+
+  .scroll-trigger-pinned {
+    position: fixed !important;
+  }
+
+  /* Performance optimizations */
+  .z-transitioning {
+    transition: z-index 0.3s ease-out;
+  }
+}
+
+@layer utilities {
+  /* Custom utilities for immersive experience */
+  .text-ethereal {
+    background: linear-gradient(135deg, var(--ethereal-foreground), var(--ethereal-accent));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .bg-ethereal {
+    background: linear-gradient(135deg, var(--ethereal-background), var(--ethereal-muted));
+  }
+
+  .border-ethereal {
+    border-color: var(--ethereal-border);
+  }
+
+  .ring-ethereal {
+    --tw-ring-color: var(--ethereal-ring);
+  }
+
+  /* Section progress indicators */
+  .progress-indicator::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(var(--section-progress) * 100%);
+    height: 100%;
+    background: var(--ethereal-accent);
+    transition: width 0.1s ease-out;
+  }
+
+  /* Debug styles */
+  .debug-section {
+    outline: 2px solid var(--ethereal-accent);
+    outline-offset: -2px;
+  }
+
+  .debug-section::before {
+    content: attr(data-section-id) ' (' attr(data-section-progress) ')';
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--ethereal-accent);
+    color: var(--ethereal-background);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-family: monospace;
+    z-index: 9999;
+    pointer-events: none;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .parallax-layer {
+    transform: none !important;
+  }
+
+  .scroll-trigger {
+    transition: none !important;
+  }
+
+  .scroll-section {
+    transition: none !important;
+  }
+
+  body.contrast-transitioning * {
+    transition: none !important;
+  }
+}

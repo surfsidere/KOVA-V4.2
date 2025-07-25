@@ -1,6 +1,6 @@
-# 🏖️ CodeSandbox Integration Guide
+# 🏖️ KOVA V4 CodeSandbox Integration Guide
 
-This project is optimized for CodeSandbox development with automatic synchronization from GitHub.
+**Traction Labs Design** - This project is optimized for CodeSandbox development with automatic synchronization from GitHub.
 
 ## 🚀 Quick Start
 
@@ -10,7 +10,7 @@ This project is optimized for CodeSandbox development with automatic synchroniza
    - Start the development server
    - Configure VSCode extensions
 
-2. **Direct Link**: [Open in CodeSandbox](https://codesandbox.io/p/github/surfsidere/Etheral_Depth/main)
+2. **Direct Link**: [Open in CodeSandbox](https://codesandbox.io/p/github/surfsidere/KOVA-V4.1/main)
 
 ## ⚡ Features
 
@@ -76,5 +76,7 @@ If changes from GitHub aren't appearing:
 - Git operations work seamlessly with GitHub
 
 ---
+
+**Built with ❤️ by Traction Labs Design**
 
 Happy coding! 🚀

@@ -5,6 +5,9 @@ import { motion, useMotionValue, useScroll, useSpring, useTransform } from "fram
 import { CelestialArc } from "./celestial-arc"
 import { EtherealSpotlight } from "./ethereal-spotlight"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
+import { useLenisScroll } from "@/hooks/use-lenis-scroll"
+import { useAnimationCoordinator } from "@/hooks/use-animation-coordinator"
+import { ParallaxLayer } from "@/components/scroll/ParallaxLayer"
 
 const arcConfigurations = [
   { delay: 0, scale: 1.2, opacity: 0.3, zIndex: 10, parallaxStrength: -15 },
@@ -26,16 +29,28 @@ export const EtherealDepth: React.FC = () => {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
+  // Use Lenis scroll integration instead of native useScroll
+  const { scrollProgress, createScrollTransform, isReady } = useLenisScroll({
+    onScroll: (data) => {
+      // Enhanced scroll callback for debugging if needed
+      if (process.env.NODE_ENV === 'development') {
+        console.debug('Ethereal scroll:', data)
+      }
+    }
   })
 
-  // Optimized scroll transforms with better spring configs
-  const scale = useSpring(useTransform(scrollYProgress, [0, 1], [1, 1.5]), scrollSpringConfig)
-  const y = useSpring(useTransform(scrollYProgress, [0, 1], [0, -200]), scrollSpringConfig)
-  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0]), scrollSpringConfig)
-  const maskOpacity = useSpring(useTransform(scrollYProgress, [0.8, 1], [0, 1]), scrollSpringConfig)
+  // Create animation coordinator for enhanced effects
+  const { createParallaxAnimation, createSpringAnimation } = useAnimationCoordinator({
+    sectionId: 'ethereal-depth',
+    autoCleanup: true,
+    performanceMode: prefersReducedMotion ? 'battery' : 'smooth'
+  })
+
+  // Enhanced scroll transforms using Lenis
+  const scale = createScrollTransform([0, 1], [1, 1.5])
+  const y = createScrollTransform([0, 1], [0, -200])
+  const opacity = createScrollTransform([0, 0.5, 1], [1, 0.8, 0])
+  const maskOpacity = createScrollTransform([0.8, 1], [0, 1])
 
   const spotlightBackground = useTransform<number[], string>(
     [mouseX, mouseY],
@@ -92,7 +107,10 @@ export const EtherealDepth: React.FC = () => {
         opacity,
         y,
         willChange: "transform",
+        zIndex: 0, // Ensure background layer
       }}
+      data-ethereal-depth
+      data-lenis-ready={isReady}
     >
       <motion.div
         className="absolute inset-0"
@@ -101,25 +119,52 @@ export const EtherealDepth: React.FC = () => {
         animate={{ opacity: isLoaded ? 1 : 0 }}
         transition={{ duration: 1.5 }}
       >
-        {isClient && arcConfigurations.map((config) => (
-          <CelestialArc 
-            key={config.zIndex} 
-            mouseX={mouseX} 
-            mouseY={mouseY} 
-            prefersReducedMotion={prefersReducedMotion}
-            {...config} 
-          />
+        {/* Enhanced parallax celestial arcs */}
+        {isClient && isReady && arcConfigurations.map((config, index) => (
+          <ParallaxLayer
+            key={config.zIndex}
+            speed={config.parallaxStrength * 0.01}
+            direction="vertical"
+            easing="smooth"
+            className="absolute inset-0"
+          >
+            <CelestialArc 
+              mouseX={mouseX} 
+              mouseY={mouseY} 
+              prefersReducedMotion={prefersReducedMotion}
+              {...config} 
+            />
+          </ParallaxLayer>
         ))}
 
-        {isClient && (
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: spotlightBackground, willChange: "background" }}
-          />
+        {/* Enhanced spotlight with parallax */}
+        {isClient && isReady && (
+          <ParallaxLayer
+            speed={-0.1}
+            direction="both"
+            easing="spring"
+            className="absolute inset-0"
+          >
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: spotlightBackground, willChange: "background" }}
+            />
+          </ParallaxLayer>
         )}
 
-        {isClient && isLoaded && <EtherealSpotlight mouseX={mouseX} mouseY={mouseY} />}
+        {/* Main spotlight effect */}
+        {isClient && isLoaded && isReady && (
+          <ParallaxLayer
+            speed={0.2}
+            direction="vertical"
+            easing="smooth"
+            className="absolute inset-0"
+          >
+            <EtherealSpotlight mouseX={mouseX} mouseY={mouseY} />
+          </ParallaxLayer>
+        )}
 
+        {/* Scroll-based mask overlay */}
         <motion.div
           className="absolute inset-0 z-50 pointer-events-none"
           style={{
@@ -128,6 +173,8 @@ export const EtherealDepth: React.FC = () => {
             willChange: "opacity",
           }}
         />
+        
+        {/* Static gradient overlay */}
         <div className="absolute inset-0 z-40 pointer-events-none bg-gradient-to-t from-black/50 to-transparent" />
       </motion.div>
     </motion.div>
