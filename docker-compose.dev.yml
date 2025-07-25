@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  kova-v42-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: kova-v42-dev
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Node.js debugging
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - WATCHPACK_POLLING=true
+    command: npm run dev-next
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Redis for caching in development
+  redis:
+    image: redis:7-alpine
+    container_name: kova-v42-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  # Optional: PostgreSQL for development database
+  postgres:
+    image: postgres:15-alpine
+    container_name: kova-v42-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=kova_v42_dev
+      - POSTGRES_USER=kova_dev
+      - POSTGRES_PASSWORD=kova_dev_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  postgres-data:

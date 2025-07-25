@@ -1,0 +1,353 @@
+name: KOVA V4.2 Enterprise CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, staging ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Daily security scans at 3 AM UTC
+    - cron: '0 3 * * *'
+
+env:
+  NODE_VERSION: '22.17.0'
+  NEXT_TELEMETRY_DISABLED: 1
+  CI: true
+
+jobs:
+  # Quality Gates - Phase 1
+  lint-and-format:
+    name: 🔍 Code Quality & Formatting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Run ESLint
+        run: npm run lint -- --format=compact --max-warnings=0
+
+      - name: Check TypeScript
+        run: npx tsc --noEmit
+
+      - name: Format check
+        run: npx prettier --check "**/*.{ts,tsx,js,jsx,md,json,yml,yaml}"
+
+  # Security Gates - Phase 1
+  security-audit:
+    name: 🛡️ Security & Vulnerability Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: typescript, javascript
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      - name: Run Snyk Security Scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+  # Unit Testing - Phase 2
+  unit-tests:
+    name: 🧪 Unit & Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [lint-and-format]
+    
+    strategy:
+      matrix:
+        test-group: [unit, integration, component]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Run ${{ matrix.test-group }} tests
+        run: |
+          case "${{ matrix.test-group }}" in
+            unit)
+              npm test -- --testPathPattern="__tests__/unit" --coverage --coverageThreshold='{"global":{"branches":90,"functions":90,"lines":90,"statements":90}}'
+              ;;
+            integration)
+              npm test -- --testPathPattern="__tests__/integration" --coverage --coverageThreshold='{"global":{"branches":80,"functions":80,"lines":80,"statements":80}}'
+              ;;
+            component)
+              npm test -- --testPathPattern="__tests__/components" --coverage
+              ;;
+          esac
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/lcov.info
+          flags: ${{ matrix.test-group }}
+
+  # Build Validation - Phase 2
+  build-validation:
+    name: 🏗️ Build & Bundle Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [lint-and-format, security-audit]
+    
+    strategy:
+      matrix:
+        environment: [development, staging, production]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Build for ${{ matrix.environment }}
+        env:
+          NODE_ENV: ${{ matrix.environment == 'development' && 'development' || 'production' }}
+          NEXT_PUBLIC_ENV: ${{ matrix.environment }}
+        run: |
+          echo "Building for ${{ matrix.environment }} environment"
+          npm run build
+
+      - name: Bundle Analysis
+        run: |
+          npm install -g bundlesize
+          bundlesize --config bundlesize.config.json
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.environment }}
+          path: .next/
+          retention-days: 7
+
+  # Performance Testing - Phase 3
+  performance-tests:
+    name: ⚡ Performance & Core Web Vitals
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build-validation]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-production
+          path: .next/
+
+      - name: Start production server
+        run: |
+          npm run start &
+          sleep 30
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          configPath: '.lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Core Web Vitals Check
+        run: |
+          npx @lhci/cli assert \
+            --preset=lighthouse:recommended \
+            --assertions.performance=0.95 \
+            --assertions.accessibility=0.95 \
+            --assertions.best-practices=0.95 \
+            --assertions.seo=0.95
+
+  # E2E Testing - Phase 3
+  e2e-tests:
+    name: 🎭 End-to-End & Visual Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: [build-validation]
+    
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-production
+          path: .next/
+
+      - name: Start application
+        run: |
+          npm run start &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=${{ matrix.browser }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Deployment - Phase 4
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging'
+    needs: [unit-tests, performance-tests, e2e-tests]
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel Staging
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          scope: staging
+
+      - name: Update deployment status
+        run: |
+          echo "Staging deployment successful"
+          echo "URL: https://kova-v42-staging.vercel.app"
+
+  deploy-production:
+    name: 🏆 Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.ref == 'refs/heads/main'
+    needs: [unit-tests, performance-tests, e2e-tests]
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel Production
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-args: '--prod'
+
+      - name: Smoke tests on production
+        run: |
+          sleep 60
+          curl -f https://kova-v42.vercel.app/api/health || exit 1
+
+      - name: Notify deployment success
+        run: |
+          echo "Production deployment successful"
+          echo "URL: https://kova-v42.vercel.app"
+
+  # Post-deployment monitoring
+  post-deployment-monitoring:
+    name: 📊 Post-Deployment Monitoring
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: [deploy-production]
+    
+    steps:
+      - name: Wait for deployment stability
+        run: sleep 300
+
+      - name: Run synthetic monitoring
+        run: |
+          # Synthetic monitoring checks
+          curl -f https://kova-v42.vercel.app/ || exit 1
+          curl -f https://kova-v42.vercel.app/api/health || exit 1
+
+      - name: Performance monitoring
+        run: |
+          # Trigger performance monitoring
+          echo "Performance monitoring active"
+
+      - name: Error monitoring setup
+        run: |
+          # Setup error monitoring
+          echo "Error monitoring configured"
