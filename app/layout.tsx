@@ -5,6 +5,7 @@ import { LenisProvider } from '@/providers/LenisProvider'
 import { SectionProvider } from '@/providers/SectionProvider'
 import { AnimationProvider } from '@/providers/AnimationProvider'
 import { ContrastProvider } from '@/providers/ContrastProvider'
+import { SystemInitializer } from '@/components/system-initializer'
 
 export const metadata: Metadata = {
   title: 'KOVA V4 - Ethereal Depth | Traction Labs Design',
@@ -34,6 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <SystemInitializer />
         <LenisProvider
           options={{
             smooth: true,

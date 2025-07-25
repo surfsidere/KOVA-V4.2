@@ -1,37 +1,70 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Basic configuration for maximum compatibility
+  // Core configuration
   reactStrictMode: true,
   
-  // Essential overrides
+  // Build optimization
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false, // Enable for production quality
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // Enable for production quality
   },
   
-  // Image optimization disabled for cloud environments
-  images: {
-    unoptimized: true,
-    domains: [],
-  },
-  
-  // CodeSandbox HTTP compatibility fixes
-  serverRuntimeConfig: {},
-  publicRuntimeConfig: {},
-  
-  // Force HTTP/1.1 compatibility for CodeSandbox
-  compress: false,
+  // Performance optimizations
+  compress: true,
   poweredByHeader: false,
-  generateEtags: false,
+  generateEtags: true,
   
-  // Experimental features disabled for stability
+  // Image optimization
+  images: {
+    unoptimized: false,
+    domains: [],
+    formats: ['image/webp', 'image/avif'],
+  },
+  
+  // Bundle optimization
   experimental: {
-    // Remove deprecated appDir (it's default in app router)
-    // Disable HTTP/2+ features that might cause parsing issues
-    serverMinification: false,
-    serverSourceMaps: false,
+    optimizeCss: true,
+    optimizePackageImports: [
+      '@radix-ui/react-accordion',
+      '@radix-ui/react-alert-dialog',
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-collapsible',
+      '@radix-ui/react-context-menu',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      'framer-motion',
+      'lenis'
+    ],
+  },
+  
+  // Code splitting optimization
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+          radix: {
+            test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
+            name: 'radix',
+            chunks: 'all',
+          },
+          motion: {
+            test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+            name: 'motion',
+            chunks: 'all',
+          },
+        },
+      }
+    }
+    return config
   },
   
   // Headers for better CodeSandbox compatibility
