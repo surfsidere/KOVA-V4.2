@@ -516,7 +516,9 @@ export const SystemDashboard: React.FC<SystemDashboardProps> = ({
               <TestRunner
                 showDetails={showDetails}
                 onTestComplete={(report) => {
-                  console.log('Tests completed:', report)
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log('Tests completed:', report)
+                  }
                 }}
               />
             </motion.div>

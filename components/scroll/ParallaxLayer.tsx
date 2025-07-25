@@ -53,9 +53,13 @@ export const ParallaxLayer: React.FC<ParallaxLayerProps> = ({
     spring: { stiffness: 60, damping: 15, mass: 0.8 },
   }
   
-  // Create spring-animated values
-  const springX = easing !== 'linear' ? useSpring(x, springConfigs[easing]) : x
-  const springY = easing !== 'linear' ? useSpring(y, springConfigs[easing]) : y
+  // Create spring-animated values (always call hooks)
+  const springXAnimated = useSpring(x, springConfigs[easing] || springConfigs.linear)
+  const springYAnimated = useSpring(y, springConfigs[easing] || springConfigs.linear)
+  
+  // Use animated values only when easing is not linear
+  const springX = easing !== 'linear' ? springXAnimated : x
+  const springY = easing !== 'linear' ? springYAnimated : y
   
   // Calculate parallax offset
   const calculateParallaxOffset = useCallback((scrollProgress: number): { x: number; y: number } => {

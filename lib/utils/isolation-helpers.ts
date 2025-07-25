@@ -75,7 +75,11 @@ export class PerformanceTracker {
     this.startMeasure(key)
     try {
       const result = fn()
-      console.log(`⏱️ ${key}: ${this.endMeasure(key).toFixed(2)}ms`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`⏱️ ${key}: ${this.endMeasure(key).toFixed(2)}ms`)
+      } else {
+        this.endMeasure(key)
+      }
       return result
     } catch (error) {
       this.endMeasure(key)
@@ -87,7 +91,11 @@ export class PerformanceTracker {
     this.startMeasure(key)
     try {
       const result = await fn()
-      console.log(`⏱️ ${key}: ${this.endMeasure(key).toFixed(2)}ms`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`⏱️ ${key}: ${this.endMeasure(key).toFixed(2)}ms`)
+      } else {
+        this.endMeasure(key)
+      }
       return result
     } catch (error) {
       this.endMeasure(key)
@@ -223,6 +231,15 @@ export class ErrorAnalyzer {
 // Component Lifecycle Utilities
 // ================================
 
+type LifecycleEvent = 
+  | 'beforeRegister'
+  | 'afterRegister' 
+  | 'beforeLoad'
+  | 'afterLoad'
+  | 'beforeUnload'
+  | 'afterUnload'
+  | 'onError'
+
 export class LifecycleManager {
   private static readonly LIFECYCLE_EVENTS = [
     'beforeRegister',
@@ -233,8 +250,6 @@ export class LifecycleManager {
     'afterUnload',
     'onError'
   ] as const
-  
-  type LifecycleEvent = typeof LifecycleManager.LIFECYCLE_EVENTS[number]
   
   private callbacks = new Map<string, Array<(componentId: string, data?: any) => void>>()
   

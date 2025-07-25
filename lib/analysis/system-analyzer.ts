@@ -179,42 +179,60 @@ export class SystemAnalyzer {
   }
 
   async performComprehensiveAnalysis(): Promise<SystemAnalysisReport> {
-    console.log('🔍 Starting comprehensive system analysis...')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 Starting comprehensive system analysis...')
+    }
     
     const analysisStart = performance.now()
     
     try {
       // Run system tests first to get baseline metrics
-      console.log('📋 Running system tests...')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📋 Running system tests...')
+      }
       const testReport = await this.testFramework.runAllTests()
       
       // Collect current system metrics
-      console.log('📊 Collecting system metrics...')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📊 Collecting system metrics...')
+      }
       const currentMetrics = this.monitor.getLatestMetrics()
       const dashboardData = this.monitor.getDashboardData()
       
       // Analyze components
-      console.log('🧩 Analyzing component performance...')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🧩 Analyzing component performance...')
+      }
       const componentAnalysis = await this.analyzeComponents()
       
       // Analyze sections and progressive loading
-      console.log('📖 Analyzing section loading...')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📖 Analyzing section loading...')
+      }
       const sectionAnalysis = await this.analyzeSections()
       
       // Analyze security
-      console.log('🔒 Analyzing security posture...')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔒 Analyzing security posture...')
+      }
       const securityAnalysis = await this.analyzeSecurity()
       
       // Analyze performance
-      console.log('⚡ Analyzing performance metrics...')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚡ Analyzing performance metrics...')
+      }
       const performanceAnalysis = await this.analyzePerformance()
       
       // Analyze reliability
-      console.log('🛡️ Analyzing system reliability...')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🛡️ Analyzing system reliability...')
+      }
       const reliabilityAnalysis = await this.analyzeReliability()
       
       // Analyze scalability
-      console.log('📈 Analyzing scalability...')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📈 Analyzing scalability...')
+      }
       const scalabilityAnalysis = await this.analyzeScalability()
       
       // Calculate overall health score
@@ -255,7 +273,9 @@ export class SystemAnalyzer {
       this.updateBenchmarks(report)
       
       const analysisTime = performance.now() - analysisStart
-      console.log(`✅ Analysis completed in ${analysisTime.toFixed(2)}ms`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`✅ Analysis completed in ${analysisTime.toFixed(2)}ms`)
+      }
       
       // Emit analysis event
       this.eventBus.emitSystemEvent('analyzer:analysis-complete', {
@@ -818,6 +838,8 @@ ${this.benchmarks.map(b => `- **${b.name}**: ${b.actual}${b.unit} (Target: ${b.t
   destroy(): void {
     this.analysisHistory = []
     this.benchmarks = []
-    console.log('🔍 System analyzer destroyed')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 System analyzer destroyed')
+    }
   }
 }

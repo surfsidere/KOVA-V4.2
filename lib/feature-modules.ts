@@ -157,16 +157,18 @@ export class FeatureManager {
     }
     
     try {
-      const module = FeatureModules[featureName]
+      const featureModule = FeatureModules[featureName]
       
       // Load feature dependencies
-      await this.loadFeatureDependencies(module)
+      await this.loadFeatureDependencies(featureModule)
       
       // Load feature components, providers, hooks
-      await this.loadFeatureAssets(module)
+      await this.loadFeatureAssets(featureModule)
       
       this.loadedFeatures.add(featureName)
-      console.log(`✅ Feature loaded: ${module.name}`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`✅ Feature loaded: ${featureModule.name}`)
+      }
       return true
       
     } catch (error) {

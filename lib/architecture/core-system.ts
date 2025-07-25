@@ -150,13 +150,13 @@ export class ModuleRegistry {
   }
 
   private async _loadModuleInternal(name: string): Promise<void> {
-    const module = this.modules.get(name)
-    if (!module) {
+    const moduleInstance = this.modules.get(name)
+    if (!moduleInstance) {
       throw new Error(`Module ${name} not found`)
     }
 
     // Load dependencies first
-    for (const dep of module.dependencies) {
+    for (const dep of moduleInstance.dependencies) {
       await this.loadModule(dep)
     }
 
@@ -172,8 +172,8 @@ export class ModuleRegistry {
 
   getDependencyGraph(): Record<string, string[]> {
     const graph: Record<string, string[]> = {}
-    for (const [name, module] of this.modules) {
-      graph[name] = module.dependencies
+    for (const [name, moduleInstance] of this.modules) {
+      graph[name] = moduleInstance.dependencies
     }
     return graph
   }

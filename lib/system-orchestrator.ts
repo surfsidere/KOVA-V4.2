@@ -383,7 +383,7 @@ export class SystemOrchestrator {
 
   private async checkTestingHealth(): Promise<ComponentHealth> {
     const issues: string[] = []
-    let score = 100
+    const score = 100
 
     try {
       // For now, assume testing is healthy if no crashes
