@@ -57,6 +57,7 @@ export const TextRotator: React.FC<TextRotatorProps> = ({
 
   const glowStyle = glowEffect ? {
     color: glowColor,
+    opacity: 0.8,
     textShadow: `
       0 0 ${20 * glowIntensity}px ${glowColor},
       0 0 ${40 * glowIntensity}px ${glowColor},
