@@ -21,7 +21,7 @@ interface ComponentErrorBoundaryProps {
   className?: string
 }
 
-interface ErrorFallbackProps {
+export interface ErrorFallbackProps {
   error: Error
   errorInfo: React.ErrorInfo
   retry: () => void
