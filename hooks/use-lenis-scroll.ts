@@ -92,10 +92,13 @@ export const useLenisScroll = (options: LenisScrollOptions = {}) => {
   const scrollTo = useCallback((target: string | number | Element, scrollOptions?: any) => {
     if (!lenis) return
     
+    // Create easing function at runtime to avoid serialization
+    const runtimeEasing = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+    
     const defaultOptions = {
       offset: 0,
       duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      easing: runtimeEasing,
       immediate: prefersReducedMotion,
       ...scrollOptions
     }
