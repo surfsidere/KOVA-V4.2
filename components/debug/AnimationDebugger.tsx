@@ -231,7 +231,7 @@ export const AnimationDebugger: React.FC<AnimationDebuggerProps> = ({
                   </div>
                   <div className="flex justify-between">
                     <span>Velocity:</span>
-                    <span>{velocity.toFixed(1)}</span>
+                    <span>{velocity.get().toFixed(1)}</span>
                   </div>
                 </div>
 
