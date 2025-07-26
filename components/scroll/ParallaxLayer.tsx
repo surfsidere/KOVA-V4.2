@@ -120,12 +120,12 @@ export const ParallaxLayer: React.FC<ParallaxLayerProps> = ({
   // Enhanced transform with velocity
   const enhancedX = useTransform(
     [springX, velocityMultiplier],
-    ([xVal, velMult]) => xVal * velMult
+    ([xVal, velMult]: [number, number]) => xVal * velMult
   )
   
   const enhancedY = useTransform(
     [springY, velocityMultiplier],
-    ([yVal, velMult]) => yVal * velMult
+    ([yVal, velMult]: [number, number]) => yVal * velMult
   )
   
   // Performance optimization: Use will-change appropriately
