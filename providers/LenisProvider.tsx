@@ -33,14 +33,10 @@ const LenisProviderClient: React.FC<ScrollProviderProps> = ({
   const [isReady, setIsReady] = useState(false)
   const prefersReducedMotion = useReducedMotion()
   
-  // Create simple easing function without serialization issues
-  const simpleEasing = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
-  
   const defaultOptions = {
     smooth: true,
     lerp: 0.1,
     duration: 1.2,
-    easing: simpleEasing,
     direction: 'vertical' as const,
     gestureDirection: 'vertical' as const,
     smoothTouch: false,
@@ -65,16 +61,19 @@ const LenisProviderClient: React.FC<ScrollProviderProps> = ({
   const scrollTo = useCallback((target: string | number, scrollOptions?: any) => {
     if (!lenisRef.current?.lenis) return
     
+    // Create easing function at runtime to avoid serialization
+    const runtimeEasing = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+    
     const scrollToOptions = {
       offset: 0,
       duration: defaultOptions.duration,
-      easing: defaultOptions.easing,
+      easing: runtimeEasing,
       immediate: prefersReducedMotion,
       ...scrollOptions
     }
     
     lenisRef.current.lenis.scrollTo(target, scrollToOptions)
-  }, [defaultOptions.duration, defaultOptions.easing, prefersReducedMotion])
+  }, [defaultOptions.duration, prefersReducedMotion])
 
   // Custom RAF integration
   useEffect(() => {
