@@ -1,9 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
-import { ReactLenis } from 'lenis/react'
-import type { LenisRef } from 'lenis/react'
-import { frame } from 'framer-motion'
+import dynamic from 'next/dynamic'
 import { ScrollState, ScrollProviderProps, LenisInstance } from '@/types/scroll.types'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
 
@@ -17,27 +15,38 @@ interface LenisContextValue {
 
 const LenisContext = createContext<LenisContextValue | null>(null)
 
-export const LenisProvider: React.FC<ScrollProviderProps> = ({ 
+// Dynamically import ReactLenis to avoid SSG serialization issues
+const ReactLenis = dynamic(
+  () => import('lenis/react').then(mod => ({ default: mod.ReactLenis })),
+  { 
+    ssr: false,
+    loading: () => <div style={{ display: 'contents' }} />
+  }
+)
+
+// Client-only LenisProvider implementation
+const LenisProviderClient: React.FC<ScrollProviderProps> = ({ 
   children, 
   options
 }) => {
-  // Create easing function inside component to avoid serialization issues
-  const defaultEasing = useCallback((t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), [])
+  const lenisRef = useRef<any>(null)
+  const [isReady, setIsReady] = useState(false)
+  const prefersReducedMotion = useReducedMotion()
+  
+  // Create simple easing function without serialization issues
+  const simpleEasing = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
   
   const defaultOptions = {
     smooth: true,
     lerp: 0.1,
     duration: 1.2,
-    easing: defaultEasing,
+    easing: simpleEasing,
     direction: 'vertical' as const,
     gestureDirection: 'vertical' as const,
     smoothTouch: false,
     touchMultiplier: 2,
     ...options
   }
-  const lenisRef = useRef<LenisRef>(null)
-  const [isReady, setIsReady] = useState(false)
-  const prefersReducedMotion = useReducedMotion()
   
   const [scrollState, setScrollState] = useState<ScrollState>({
     progress: 0,
@@ -67,17 +76,17 @@ export const LenisProvider: React.FC<ScrollProviderProps> = ({
     lenisRef.current.lenis.scrollTo(target, scrollToOptions)
   }, [defaultOptions.duration, defaultOptions.easing, prefersReducedMotion])
 
-  // Custom RAF integration with Framer Motion
+  // Custom RAF integration
   useEffect(() => {
     let isScrolling = false
     let scrollTimeout: NodeJS.Timeout
+    let animationId: number
     
-    function update(data: { timestamp: number }) {
-      const time = data.timestamp
+    function update() {
       const lenis = lenisRef.current?.lenis
       
       if (lenis) {
-        lenis.raf(time)
+        lenis.raf(Date.now())
         
         // Enhanced scroll state tracking
         const currentScroll = lenis.scroll || 0
@@ -105,13 +114,15 @@ export const LenisProvider: React.FC<ScrollProviderProps> = ({
           direction: velocity > 0 ? 'down' : 'up',
         })
       }
+      
+      animationId = requestAnimationFrame(update)
     }
 
-    frame.update(update, true)
+    animationId = requestAnimationFrame(update)
     setIsReady(true)
 
     return () => {
-      // frame.cancelUpdate(update) // Method doesn't exist in current version
+      cancelAnimationFrame(animationId)
       clearTimeout(scrollTimeout)
     }
   }, [updateScrollState])
@@ -143,6 +154,40 @@ export const LenisProvider: React.FC<ScrollProviderProps> = ({
       </ReactLenis>
     </LenisContext.Provider>
   )
+}
+
+// Main LenisProvider that renders client-only
+export const LenisProvider: React.FC<ScrollProviderProps> = ({ children, options }) => {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  if (!isMounted) {
+    // Provide a basic context during SSR
+    const fallbackContext: LenisContextValue = {
+      lenis: null,
+      scrollState: {
+        progress: 0,
+        velocity: 0,
+        direction: 'down',
+        activeSection: '',
+        isScrolling: false,
+      },
+      isReady: false,
+      scrollTo: () => {},
+      updateScrollState: () => {},
+    }
+
+    return (
+      <LenisContext.Provider value={fallbackContext}>
+        {children}
+      </LenisContext.Provider>
+    )
+  }
+
+  return <LenisProviderClient options={options}>{children}</LenisProviderClient>
 }
 
 export const useLenis = () => {
