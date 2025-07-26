@@ -153,7 +153,7 @@ export const ParallaxLayer: React.FC<ParallaxLayerProps> = ({
       <div>Progress: {progress.toFixed(3)}</div>
       <div>X: {springX.get().toFixed(1)}px</div>
       <div>Y: {springY.get().toFixed(1)}px</div>
-      <div>Velocity: {velocity.toFixed(2)}</div>
+      <div>Velocity: {velocity.get().toFixed(2)}</div>
       <div>Disabled: {disabled.toString()}</div>
     </div>
   )
