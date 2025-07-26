@@ -145,7 +145,7 @@ export const ParallaxLayer: React.FC<ParallaxLayerProps> = ({
     }
   }, [disabled, speed])
   
-  // Debug information
+  // Debug information - MotionValue fix applied
   const debugInfo = debugMode && (
     <div className="absolute top-2 left-2 z-50 bg-black/80 text-white text-xs p-2 rounded font-mono">
       <div>Speed: {speed}</div>
