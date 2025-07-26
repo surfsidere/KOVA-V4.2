@@ -19,17 +19,22 @@ const LenisContext = createContext<LenisContextValue | null>(null)
 
 export const LenisProvider: React.FC<ScrollProviderProps> = ({ 
   children, 
-  options = {
+  options
+}) => {
+  // Create easing function inside component to avoid serialization issues
+  const defaultEasing = useCallback((t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), [])
+  
+  const defaultOptions = {
     smooth: true,
     lerp: 0.1,
     duration: 1.2,
-    easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    direction: 'vertical',
-    gestureDirection: 'vertical',
+    easing: defaultEasing,
+    direction: 'vertical' as const,
+    gestureDirection: 'vertical' as const,
     smoothTouch: false,
     touchMultiplier: 2,
+    ...options
   }
-}) => {
   const lenisRef = useRef<LenisRef>(null)
   const [isReady, setIsReady] = useState(false)
   const prefersReducedMotion = useReducedMotion()
@@ -51,16 +56,16 @@ export const LenisProvider: React.FC<ScrollProviderProps> = ({
   const scrollTo = useCallback((target: string | number, scrollOptions?: any) => {
     if (!lenisRef.current?.lenis) return
     
-    const defaultOptions = {
+    const scrollToOptions = {
       offset: 0,
-      duration: options.duration,
-      easing: options.easing,
+      duration: defaultOptions.duration,
+      easing: defaultOptions.easing,
       immediate: prefersReducedMotion,
       ...scrollOptions
     }
     
-    lenisRef.current.lenis.scrollTo(target, defaultOptions)
-  }, [options.duration, options.easing, prefersReducedMotion])
+    lenisRef.current.lenis.scrollTo(target, scrollToOptions)
+  }, [defaultOptions.duration, defaultOptions.easing, prefersReducedMotion])
 
   // Custom RAF integration with Framer Motion
   useEffect(() => {
@@ -113,10 +118,10 @@ export const LenisProvider: React.FC<ScrollProviderProps> = ({
 
   // Enhanced options with reduced motion support
   const lenisOptions = {
-    ...options,
+    ...defaultOptions,
     autoRaf: false,
-    smooth: prefersReducedMotion ? false : options.smooth,
-    lerp: prefersReducedMotion ? 1 : options.lerp,
+    smooth: prefersReducedMotion ? false : defaultOptions.smooth,
+    lerp: prefersReducedMotion ? 1 : defaultOptions.lerp,
   }
 
   const contextValue: LenisContextValue = {
