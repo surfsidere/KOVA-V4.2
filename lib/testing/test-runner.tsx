@@ -28,12 +28,6 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
   const [selectedScenario, setSelectedScenario] = useState<string>('')
   const testFramework = useRef(IsolationTestFramework.getInstance())
 
-  useEffect(() => {
-    if (autoRun) {
-      handleRunAllTests()
-    }
-  }, [autoRun])
-
   const handleRunAllTests = useCallback(async () => {
     setIsRunning(true)
     setCurrentTest('')
@@ -53,6 +47,12 @@ export const TestRunner: React.FC<TestRunnerProps> = ({
       setCurrentTest('')
     }
   }, [onTestComplete])
+
+  useEffect(() => {
+    if (autoRun) {
+      handleRunAllTests()
+    }
+  }, [autoRun, handleRunAllTests])
 
   const handleRunSpecificTest = useCallback(async (scenarioId: string) => {
     if (!scenarioId) return

@@ -93,13 +93,7 @@ export class ComponentErrorBoundary extends Component<
       stack: error.stack
     })
 
-    // Log error details
-    console.error(`🚨 Component Error Boundary triggered: ${componentId}`, {
-      error,
-      errorInfo,
-      isolationLevel,
-      componentStack: errorInfo.componentStack
-    })
+    // Error details are captured in the event system for monitoring
 
     // Apply isolation strategy
     this.applyIsolationStrategy(error, errorInfo)
@@ -179,7 +173,12 @@ export class ComponentErrorBoundary extends Component<
     const retryDelay = Math.pow(2, this.state.retryCount) * 1000 // Exponential backoff
 
     this.retryTimeout = setTimeout(() => {
-      console.log(`🔄 Retrying component: ${this.props.componentId} (${this.state.retryCount}/${this.props.maxRetries})`)
+      // Emit retry event for monitoring
+      this.eventBus.emitSystemEvent('error-boundary:component-retry', {
+        componentId: this.props.componentId,
+        retryCount: this.state.retryCount,
+        maxRetries: this.props.maxRetries
+      })
       
       this.setState({
         hasError: false,
@@ -190,7 +189,11 @@ export class ComponentErrorBoundary extends Component<
   }
 
   private fallbackToAlternativeStrategy(): void {
-    console.warn(`⚠️ Max retries reached for ${this.props.componentId}, falling back to isolation`)
+    // Emit fallback event for monitoring
+    this.eventBus.emitSystemEvent('error-boundary:fallback-strategy', {
+      componentId: this.props.componentId,
+      reason: 'max-retries-reached'
+    })
     this.setState({ isolated: true })
   }
 
@@ -209,7 +212,11 @@ export class ComponentErrorBoundary extends Component<
           errorInfo: null
         })
       }).catch((reloadError) => {
-        console.error(`❌ Component reload failed: ${componentId}`, reloadError)
+        // Emit reload failure event for monitoring
+        this.eventBus.emitSystemEvent('error-boundary:reload-failed', {
+          componentId,
+          error: reloadError.message
+        })
         this.setState({ isolated: true })
       })
     }, 1000)

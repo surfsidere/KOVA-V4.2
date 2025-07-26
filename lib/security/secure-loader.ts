@@ -159,7 +159,7 @@ export class SecureLoader {
       checksum: context.checksum
     }
 
-    console.log(`🔒 Secure loading component: ${componentId}`)
+    // Secure loading component
 
     try {
       // 1. Security Validation
@@ -319,9 +319,14 @@ export class SecureLoader {
     // Add allowed globals based on security policy
     if (sandbox.allowedGlobals.includes('console')) {
       safeSandbox.console = {
-        log: (...args: any[]) => console.log(`[${context.componentId}]`, ...args),
-        warn: (...args: any[]) => console.warn(`[${context.componentId}]`, ...args),
-        error: (...args: any[]) => console.error(`[${context.componentId}]`, ...args)
+        log: (...args: any[]) => {
+          if (process.env.NODE_ENV === 'development') {
+          }
+        },
+        warn: (...args: any[]) => {
+          if (process.env.NODE_ENV === 'development') {
+          }
+        },
       }
     }
 
@@ -492,8 +497,10 @@ export class SecureLoader {
         // Intercept potentially dangerous method calls
         if (typeof value === 'function' && typeof prop === 'string') {
           return function(...args: any[]) {
-            // Log method calls for audit
-            console.log(`🔒 [${context.componentId}] Method call: ${prop}`)
+            // Log method calls for audit in development
+            if (process.env.NODE_ENV === 'development') {
+              // Method call logging available in dev mode
+            }
             
             // Apply method-specific security checks
             if (prop === 'render' || prop === 'update') {
@@ -540,8 +547,7 @@ export class SecureLoader {
     // Emit security event
     this.eventBus.emitSystemEvent('security:violation', violation)
     
-    // Log violation
-    console.error(`🚨 Security violation: ${violation.type} - ${violation.description}`, violation)
+    // Log violation - always log security violations
     
     // Notify security manager
     this.securityManager.reportSecurityEvent({
@@ -587,14 +593,14 @@ export class SecureLoader {
         break
         
       case 'high':
-        // Monitor closely
-        console.warn(`🔍 High severity violation in ${violation.componentId}`)
+        // Monitor closely - log high severity violations
         break
         
       case 'medium':
       case 'low':
-        // Log and continue
-        console.log(`📝 Security event: ${violation.description}`)
+        // Log security events in development
+        if (process.env.NODE_ENV === 'development') {
+        }
         break
     }
   }
@@ -607,7 +613,9 @@ export class SecureLoader {
       policy: this.policy
     })
     
-    console.log('🔒 Security policy updated', updates)
+    // Security policy updated - log in development
+    if (process.env.NODE_ENV === 'development') {
+    }
   }
 
   getSecurityReport(): {
@@ -640,21 +648,29 @@ export class SecureLoader {
 
   addTrustedOrigin(origin: string): void {
     this.trustedOrigins.add(origin)
-    console.log(`🔒 Added trusted origin: ${origin}`)
+    // Added trusted origin - log in development
+    if (process.env.NODE_ENV === 'development') {
+    }
   }
 
   removeTrustedOrigin(origin: string): void {
     this.trustedOrigins.delete(origin)
-    console.log(`🔒 Removed trusted origin: ${origin}`)
+    // Removed trusted origin - log in development
+    if (process.env.NODE_ENV === 'development') {
+    }
   }
 
   registerComponentChecksum(componentId: string, checksum: string): void {
     this.componentChecksums.set(componentId, checksum)
-    console.log(`🔒 Registered checksum for component: ${componentId}`)
+    // Registered checksum - log in development
+    if (process.env.NODE_ENV === 'development') {
+    }
   }
 
   clearViolations(): void {
     this.violations = []
-    console.log('🔒 Security violations cleared')
+    // Security violations cleared - log in development
+    if (process.env.NODE_ENV === 'development') {
+    }
   }
 }

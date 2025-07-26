@@ -66,7 +66,6 @@ export interface LoadingStrategy {
 
 export class CriticalLoadingStrategy implements LoadingStrategy {
   async load(componentId: string, metadata: ComponentMetadata): Promise<any> {
-    console.log(`🚨 Critical loading: ${componentId}`)
     // Immediate, high-priority loading
     return this.performCriticalLoad(componentId, metadata)
   }
@@ -87,7 +86,6 @@ export class CriticalLoadingStrategy implements LoadingStrategy {
 
 export class LazyLoadingStrategy implements LoadingStrategy {
   async load(componentId: string, metadata: ComponentMetadata): Promise<any> {
-    console.log(`😴 Lazy loading: ${componentId}`)
     // Defer loading until needed
     return this.performLazyLoad(componentId, metadata)
   }
@@ -109,7 +107,6 @@ export class LazyLoadingStrategy implements LoadingStrategy {
 
 export class PreloadStrategy implements LoadingStrategy {
   async load(componentId: string, metadata: ComponentMetadata): Promise<any> {
-    console.log(`⚡ Preloading: ${componentId}`)
     // Background preloading
     return this.performPreload(componentId, metadata)
   }
@@ -210,12 +207,10 @@ export class LoadComponentCommand implements IsolationCommand {
   
   async execute(): Promise<void> {
     await this.isolator.loadComponent(this.componentId)
-    console.log(`✅ Executed: Load ${this.componentId}`)
   }
   
   async undo(): Promise<void> {
     this.isolator.unloadComponent(this.componentId)
-    console.log(`↩️ Undone: Unload ${this.componentId}`)
   }
   
   canExecute(): boolean {
@@ -235,12 +230,10 @@ export class UnloadComponentCommand implements IsolationCommand {
   
   async execute(): Promise<void> {
     this.isolator.unloadComponent(this.componentId)
-    console.log(`✅ Executed: Unload ${this.componentId}`)
   }
   
   async undo(): Promise<void> {
     await this.isolator.loadComponent(this.componentId)
-    console.log(`↩️ Undone: Load ${this.componentId}`)
   }
   
   canExecute(): boolean {
@@ -322,7 +315,6 @@ export class ComponentContext {
   
   setState(state: ComponentStateInterface): void {
     this.state = state
-    console.log(`🔄 Component ${this.componentId} state changed to: ${state.getStatus()}`)
   }
   
   async load(): Promise<void> {
@@ -344,7 +336,6 @@ export class ComponentContext {
 
 export class IdleComponentState implements ComponentStateInterface {
   async load(context: ComponentContext): Promise<void> {
-    console.log(`🔄 Loading component: ${context.componentId}`)
     context.setState(new LoadingComponentState())
     
     try {
@@ -393,11 +384,9 @@ export class LoadingComponentState implements ComponentStateInterface {
 export class LoadedComponentState implements ComponentStateInterface {
   async load(context: ComponentContext): Promise<void> {
     // Already loaded
-    console.log(`ℹ️ Component ${context.componentId} is already loaded`)
   }
   
   async unload(context: ComponentContext): Promise<void> {
-    console.log(`🗑️ Unloading component: ${context.componentId}`)
     context.setState(new IdleComponentState())
   }
   
@@ -412,7 +401,6 @@ export class LoadedComponentState implements ComponentStateInterface {
 
 export class ErrorComponentState implements ComponentStateInterface {
   async load(context: ComponentContext): Promise<void> {
-    console.log(`🔄 Retrying component: ${context.componentId}`)
     context.setState(new IdleComponentState())
     await context.load()
   }
@@ -422,8 +410,7 @@ export class ErrorComponentState implements ComponentStateInterface {
   }
   
   async handleError(context: ComponentContext, error: Error): Promise<void> {
-    // Already in error state
-    console.error(`💥 Additional error in component ${context.componentId}:`, error)
+    // Already in error state - maintain error state
   }
   
   getStatus(): string {
@@ -605,7 +592,6 @@ export abstract class ComponentLoader {
   }
   
   private async prepareLoading(componentId: string, metadata: ComponentMetadata): Promise<void> {
-    console.log(`🔄 Preparing to load component: ${componentId}`)
     await this.customPreparation(componentId, metadata)
   }
   
@@ -620,7 +606,6 @@ export abstract class ComponentLoader {
 
 export class SecurityAwareComponentLoader extends ComponentLoader {
   protected async performLoad(componentId: string, metadata: ComponentMetadata): Promise<any> {
-    console.log(`🔒 Security-aware loading: ${componentId}`)
     // Implement secure loading logic
     return { id: componentId, secure: true }
   }
@@ -635,14 +620,12 @@ export class SecurityAwareComponentLoader extends ComponentLoader {
 
 export class PerformanceOptimizedComponentLoader extends ComponentLoader {
   protected async performLoad(componentId: string, metadata: ComponentMetadata): Promise<any> {
-    console.log(`⚡ Performance-optimized loading: ${componentId}`)
     // Implement optimized loading logic
     return { id: componentId, optimized: true }
   }
   
   protected async customPreparation(componentId: string, metadata: ComponentMetadata): Promise<void> {
     // Pre-warm caches, optimize memory
-    console.log(`🔥 Pre-warming for ${componentId}`)
   }
 }
 
@@ -681,7 +664,7 @@ class ProductionComponentIsolator implements ComponentIsolatorInterface {
   }
   
   unloadComponent(componentId: string): void {
-    console.log(`Production unload: ${componentId}`)
+    // Production unload implementation
   }
   
   isComponentLoaded(componentId: string): boolean {
@@ -703,7 +686,7 @@ class DevelopmentComponentIsolator implements ComponentIsolatorInterface {
   }
   
   unloadComponent(componentId: string): void {
-    console.log(`Development unload (with debug): ${componentId}`)
+    // Development unload implementation with debug capabilities
   }
   
   isComponentLoaded(componentId: string): boolean {
@@ -754,7 +737,6 @@ class DevelopmentSecureLoader implements SecureLoaderInterface {
 class ProductionMonitor implements MonitorInterface {
   recordComponentLoad(componentId: string, success: boolean): void {
     // Send to production monitoring service
-    console.log(`📊 Production monitor: ${componentId} - ${success}`)
   }
   
   getSystemStatus(): any {
@@ -764,8 +746,7 @@ class ProductionMonitor implements MonitorInterface {
 
 class DevelopmentMonitor implements MonitorInterface {
   recordComponentLoad(componentId: string, success: boolean): void {
-    // Local development logging
-    console.log(`🔍 Dev monitor: ${componentId} - ${success}`)
+    // Local development logging - debug info available in dev tools
   }
   
   getSystemStatus(): any {

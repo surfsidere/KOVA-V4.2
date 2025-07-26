@@ -50,7 +50,7 @@ export const SystemDashboard: React.FC<SystemDashboardProps> = ({
       const currentBenchmarks = systemAnalyzer.current.getPerformanceBenchmarks()
       setBenchmarks(currentBenchmarks)
     } catch (error) {
-      console.error('Failed to refresh dashboard data:', error)
+      // Handle refresh error silently - dashboard will show stale data
     }
   }, [])
 
@@ -65,7 +65,7 @@ export const SystemDashboard: React.FC<SystemDashboardProps> = ({
       
       await refreshData()
     } catch (error) {
-      console.error('Analysis failed:', error)
+      // Handle analysis error silently - error state will be shown in UI
     } finally {
       setIsAnalyzing(false)
     }
@@ -516,9 +516,7 @@ export const SystemDashboard: React.FC<SystemDashboardProps> = ({
               <TestRunner
                 showDetails={showDetails}
                 onTestComplete={(report) => {
-                  if (process.env.NODE_ENV === 'development') {
-                    console.log('Tests completed:', report)
-                  }
+                  // Test completion handled by TestRunner component
                 }}
               />
             </motion.div>

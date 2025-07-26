@@ -173,10 +173,8 @@ export const ParallaxLayer: React.FC<ParallaxLayerProps> = ({
       style={{
         ...style,
         transform: disabled ? 'none' : undefined,
-        backfaceVisibility: 'hidden', // Improve performance
+        backfaceVisibility: 'hidden',
         perspective: 1000,
-      }}
-      animate={{
         x: disabled ? 0 : enhancedX,
         y: disabled ? 0 : enhancedY,
       }}

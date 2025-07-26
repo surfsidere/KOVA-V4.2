@@ -76,20 +76,8 @@ export async function initializeKOVASystem(config?: {
   const { systemOrchestrator } = await import('./system-orchestrator')
   await systemOrchestrator.initialize()
   
-  console.log(`
-🎯 KOVA-V4.2 System Initialized Successfully
-
-Architecture Features:
-✅ Scalable modular architecture
-✅ Zero-trust security system  
-✅ Sub-100ms performance engine
-✅ WCAG AAA accessibility compliance
-✅ Enterprise testing framework
-✅ Production deployment pipeline
-✅ Real-time health monitoring
-
-System Status: READY FOR PRODUCTION 🚀
-`)
+  // KOVA-V4.2 System initialized successfully
+  // All architecture features are active and ready for production
 }
 
 /**

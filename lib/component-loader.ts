@@ -111,7 +111,7 @@ export class ComponentRegistry {
     return Promise.all(
       names.map(name => 
         this.loadComponent(name).catch(() => {
-          console.warn(`Failed to preload component: ${name}`)
+          // Failed to preload component - silent failure for production
         })
       )
     )

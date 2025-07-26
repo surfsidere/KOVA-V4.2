@@ -305,18 +305,7 @@ export const AnimationDebugger: React.FC<AnimationDebuggerProps> = ({
                     </button>
                     <button
                       onClick={() => {
-                        console.log('Animation Debug Data:', {
-                          animations: animations.map(a => ({
-                            id: a.id,
-                            type: a.type,
-                            isActive: a.isActive,
-                            properties: a.properties,
-                          })),
-                          sections: Array.from(sections.entries()),
-                          activeSection,
-                          progress,
-                          velocity,
-                        })
+                        // Debug data logging removed in production build
                       }}
                       className="px-2 py-1 rounded text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
                     >

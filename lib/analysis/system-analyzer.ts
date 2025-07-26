@@ -179,60 +179,34 @@ export class SystemAnalyzer {
   }
 
   async performComprehensiveAnalysis(): Promise<SystemAnalysisReport> {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 Starting comprehensive system analysis...')
-    }
+    // System analysis starting - monitoring through event system
     
     const analysisStart = performance.now()
     
     try {
       // Run system tests first to get baseline metrics
-      if (process.env.NODE_ENV === 'development') {
-        console.log('📋 Running system tests...')
-      }
       const testReport = await this.testFramework.runAllTests()
       
       // Collect current system metrics
-      if (process.env.NODE_ENV === 'development') {
-        console.log('📊 Collecting system metrics...')
-      }
       const currentMetrics = this.monitor.getLatestMetrics()
       const dashboardData = this.monitor.getDashboardData()
       
       // Analyze components
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🧩 Analyzing component performance...')
-      }
       const componentAnalysis = await this.analyzeComponents()
       
       // Analyze sections and progressive loading
-      if (process.env.NODE_ENV === 'development') {
-        console.log('📖 Analyzing section loading...')
-      }
       const sectionAnalysis = await this.analyzeSections()
       
       // Analyze security
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔒 Analyzing security posture...')
-      }
       const securityAnalysis = await this.analyzeSecurity()
       
       // Analyze performance
-      if (process.env.NODE_ENV === 'development') {
-        console.log('⚡ Analyzing performance metrics...')
-      }
       const performanceAnalysis = await this.analyzePerformance()
       
       // Analyze reliability
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🛡️ Analyzing system reliability...')
-      }
       const reliabilityAnalysis = await this.analyzeReliability()
       
       // Analyze scalability
-      if (process.env.NODE_ENV === 'development') {
-        console.log('📈 Analyzing scalability...')
-      }
       const scalabilityAnalysis = await this.analyzeScalability()
       
       // Calculate overall health score
@@ -273,9 +247,7 @@ export class SystemAnalyzer {
       this.updateBenchmarks(report)
       
       const analysisTime = performance.now() - analysisStart
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`✅ Analysis completed in ${analysisTime.toFixed(2)}ms`)
-      }
+      // Analysis completed - time tracked in event system
       
       // Emit analysis event
       this.eventBus.emitSystemEvent('analyzer:analysis-complete', {
@@ -287,7 +259,11 @@ export class SystemAnalyzer {
       return report
       
     } catch (error) {
-      console.error('❌ Analysis failed:', error)
+      // Emit analysis failure event for monitoring
+      this.eventBus.emitSystemEvent('analyzer:analysis-failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date()
+      })
       throw error
     }
   }
@@ -838,8 +814,6 @@ ${this.benchmarks.map(b => `- **${b.name}**: ${b.actual}${b.unit} (Target: ${b.t
   destroy(): void {
     this.analysisHistory = []
     this.benchmarks = []
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 System analyzer destroyed')
-    }
+    // System analyzer destroyed - cleanup completed
   }
 }

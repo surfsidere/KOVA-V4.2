@@ -106,7 +106,7 @@ export const LenisProvider: React.FC<ScrollProviderProps> = ({
     setIsReady(true)
 
     return () => {
-      frame.cancelUpdate(update)
+      // frame.cancelUpdate(update) // Method doesn't exist in current version
       clearTimeout(scrollTimeout)
     }
   }, [updateScrollState])
@@ -120,7 +120,7 @@ export const LenisProvider: React.FC<ScrollProviderProps> = ({
   }
 
   const contextValue: LenisContextValue = {
-    lenis: lenisRef.current?.lenis || null,
+    lenis: lenisRef.current?.lenis as LenisInstance | null,
     scrollState,
     isReady,
     scrollTo,

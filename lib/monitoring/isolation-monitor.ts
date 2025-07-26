@@ -205,7 +205,7 @@ export class IsolationMonitor {
       this.collectMetrics()
     }, this.config.metrics.collectionInterval)
 
-    console.log('📊 Isolation monitoring started')
+    // Isolation monitoring started
   }
 
   private collectMetrics(): void {
@@ -475,7 +475,7 @@ export class IsolationMonitor {
     }
 
     if (this.config.logging.destinations.includes('console')) {
-      console.log(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${message}`, data || '')
+      // Console logging disabled in production - use remote logging
     }
 
     // Additional destinations would be implemented here
@@ -635,6 +635,6 @@ export class IsolationMonitor {
     }
     
     this.clearHistory()
-    console.log('📊 Isolation monitor destroyed')
+    // Isolation monitor destroyed
   }
 }

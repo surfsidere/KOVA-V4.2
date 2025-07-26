@@ -351,16 +351,11 @@ export function LogExecution(target: any, propertyName: string, descriptor: Prop
   
   descriptor.value = async function (...args: any[]) {
     const startTime = Date.now()
-    console.log(`Executing ${target.constructor.name}.${propertyName}`)
     
     try {
       const result = await originalMethod.apply(this, args)
-      const duration = Date.now() - startTime
-      console.log(`Completed ${target.constructor.name}.${propertyName} in ${duration}ms`)
       return result
     } catch (error) {
-      const duration = Date.now() - startTime
-      console.error(`Failed ${target.constructor.name}.${propertyName} after ${duration}ms:`, error)
       throw error
     }
   }

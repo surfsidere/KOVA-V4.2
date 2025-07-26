@@ -174,8 +174,11 @@ export const ScrollTrigger: React.FC<ScrollTriggerProps> = ({
     }
     
     return () => {
-      // Cleanup animations
-      triggerAnimations.current.clear()
+      // Cleanup animations - capture current value to avoid stale closure
+      const currentAnimations = triggerAnimations.current
+      if (currentAnimations) {
+        currentAnimations.clear()
+      }
     }
   }, [startPos, endPos, fade, scale, rotate, translate, parallax, animation, createScrollAnimation, createParallaxAnimation])
   

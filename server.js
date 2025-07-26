@@ -5,7 +5,7 @@ const { parse } = require('url')
 const next = require('next')
 
 const dev = process.env.NODE_ENV !== 'production'
-const hostname = process.env.HOSTNAME || '0.0.0.0'
+const hostname = process.env.HOSTNAME || 'localhost'
 const port = parseInt(process.env.PORT || '3000', 10)
 
 console.log(`🚀 Traction Labs Design - KOVA V4 Starting...`)
@@ -17,8 +17,10 @@ const app = next({ dev, hostname, port })
 const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
+  console.log('✅ Next.js app prepared successfully')
+  
   // Create HTTP/1.1 compatible server
-  const server = createServer((req, res) => {
+  const server = createServer(async (req, res) => {
     try {
       // Force HTTP/1.1 headers for CodeSandbox compatibility
       res.setHeader('Connection', 'keep-alive')
@@ -28,17 +30,18 @@ app.prepare().then(() => {
       res.removeHeader('Transfer-Encoding')
       
       const parsedUrl = parse(req.url, true)
-      handle(req, res, parsedUrl)
+      await handle(req, res, parsedUrl)
     } catch (err) {
-      console.error('Error occurred handling', req.url, err)
+      console.error('❌ Error occurred handling', req.url, err)
       res.statusCode = 500
       res.end('Internal Server Error')
     }
   })
 
-  // Configure server for CodeSandbox
+  // Configure server for better reliability
   server.keepAliveTimeout = 5000
   server.headersTimeout = 6000
+  server.timeout = 30000
 
   server.listen(port, hostname, (err) => {
     if (err) {
@@ -46,6 +49,21 @@ app.prepare().then(() => {
       throw err
     }
     console.log(`✅ Traction Labs Design server ready on http://${hostname}:${port}`)
+  })
+
+  // Enhanced error handling
+  server.on('error', (err) => {
+    console.error('❌ Server error:', err)
+  })
+
+  process.on('uncaughtException', (err) => {
+    console.error('❌ Uncaught exception:', err)
+    process.exit(1)
+  })
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled rejection at:', promise, 'reason:', reason)
+    process.exit(1)
   })
 
   // Graceful shutdown
@@ -57,6 +75,7 @@ app.prepare().then(() => {
     })
   })
 }).catch((ex) => {
-  console.error('❌ Failed to start Traction Labs Design server:', ex.stack)
+  console.error('❌ Failed to prepare Next.js app:', ex.stack)
+  console.error('❌ This is likely the SIGBUS error returning')
   process.exit(1)
 })

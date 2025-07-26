@@ -117,7 +117,7 @@ export class ComponentIsolator {
       metadata
     })
 
-    console.log(`📦 Component registered: ${metadata.name} (${metadata.id})`)
+    // Component registered successfully
   }
 
   private validateMetadata(metadata: ComponentMetadata): void {
@@ -134,7 +134,7 @@ export class ComponentIsolator {
       for (const dep of metadata.dependencies) {
         if (!this.components.has(dep)) {
           if (this.config.dependencies.autoResolve) {
-            console.log(`🔄 Auto-resolving dependency: ${dep}`)
+            // Auto-resolving dependency
           } else {
             throw new Error(`Missing dependency: ${dep} for component ${metadata.id}`)
           }
@@ -213,7 +213,7 @@ export class ComponentIsolator {
       // Performance tracking
       this.performanceEngine.startMeasure(`component-render-${componentId}`)
 
-      console.log(`✅ Component loaded: ${metadata.name} (${loadTime}ms, ${memoryUsage}MB)`)
+      // Component loaded successfully
 
       return component
 
@@ -240,7 +240,7 @@ export class ComponentIsolator {
   private async autoResolveDependency(dependencyId: string): Promise<any> {
     // Auto-resolution logic - in real implementation, this would
     // check npm registry, CDN, or other component sources
-    console.log(`🔄 Auto-resolving dependency: ${dependencyId}`)
+    // Auto-resolving dependency
     
     // Simulate dependency resolution
     await new Promise(resolve => setTimeout(resolve, 100))
@@ -265,9 +265,9 @@ export class ComponentIsolator {
     // Create isolated execution context
     const sandbox = {
       console: {
-        log: (...args: any[]) => console.log(`[${componentId}]`, ...args),
-        warn: (...args: any[]) => console.warn(`[${componentId}]`, ...args),
-        error: (...args: any[]) => console.error(`[${componentId}]`, ...args)
+        log: (...args: any[]) => {}, // Sandboxed console disabled
+        warn: (...args: any[]) => {}, // Sandboxed console disabled  
+        error: (...args: any[]) => {} // Sandboxed console disabled
       },
       performance: {
         now: () => performance.now(),
@@ -343,11 +343,11 @@ export class ComponentIsolator {
       canRetry: newRetryCount < this.config.retryLimit
     })
 
-    console.error(`❌ Component load failed: ${componentId}`, error)
+    // Component load failed - error handled by event system
 
     // Auto-retry if within limit
     if (newRetryCount < this.config.retryLimit) {
-      console.log(`🔄 Retrying component load: ${componentId} (${newRetryCount}/${this.config.retryLimit})`)
+      // Retrying component load
       
       // Exponential backoff
       const delay = Math.pow(2, newRetryCount) * 1000
@@ -383,14 +383,14 @@ export class ComponentIsolator {
 
   // Component Lifecycle
   private handleComponentMount(componentId: string, data: any): void {
-    console.log(`🔧 Component mounted: ${componentId}`)
+    // Component mounted successfully
     
     // Start render time measurement
     this.performanceEngine.startMeasure(`component-render-${componentId}`)
   }
 
   private handleComponentUnmount(componentId: string): void {
-    console.log(`🗑️ Component unmounted: ${componentId}`)
+    // Component unmounted successfully
 
     // End render time measurement
     const renderTime = this.performanceEngine.endMeasure(`component-render-${componentId}`)
@@ -408,7 +408,7 @@ export class ComponentIsolator {
   }
 
   private handleComponentError(componentId: string, error: Error): void {
-    console.error(`💥 Component error: ${componentId}`, error)
+    // Component error - handled by isolation system
     
     this.updateState(componentId, {
       status: 'error',
@@ -485,7 +485,7 @@ export class ComponentIsolator {
     this.instances.delete(componentId)
     this.updateState(componentId, { status: 'idle' })
     
-    console.log(`🗑️ Component unloaded: ${componentId}`)
+    // Component unloaded successfully
   }
 
   getIsolationReport(): {
@@ -530,6 +530,6 @@ export class ComponentIsolator {
     this.states.clear()
     this.instances.clear()
 
-    console.log('🗑️ Component Isolator destroyed')
+    // Component Isolator destroyed
   }
 }

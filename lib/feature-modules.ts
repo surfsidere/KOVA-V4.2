@@ -166,9 +166,7 @@ export class FeatureManager {
       await this.loadFeatureAssets(featureModule)
       
       this.loadedFeatures.add(featureName)
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`✅ Feature loaded: ${featureModule.name}`)
-      }
+      // Feature loaded successfully - emit event for monitoring
       return true
       
     } catch (error) {

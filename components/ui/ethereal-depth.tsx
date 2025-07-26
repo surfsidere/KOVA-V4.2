@@ -32,10 +32,7 @@ export const EtherealDepth: React.FC = () => {
   // Use Lenis scroll integration instead of native useScroll
   const { scrollProgress, createScrollTransform, isReady } = useLenisScroll({
     onScroll: (data) => {
-      // Enhanced scroll callback for debugging if needed
-      if (process.env.NODE_ENV === 'development') {
-        console.debug('Ethereal scroll:', data)
-      }
+      // Scroll data handled internally by animation coordinator
     }
   })
 
@@ -71,7 +68,7 @@ export const EtherealDepth: React.FC = () => {
             mouseX.set(e.clientX)
             mouseY.set(e.clientY)
           } catch (error) {
-            console.warn('Mouse tracking error:', error)
+            // Mouse tracking error handled silently
           }
           ticking = false
         })
@@ -87,11 +84,11 @@ export const EtherealDepth: React.FC = () => {
           try {
             window.removeEventListener("mousemove", handleMouseMove)
           } catch (error) {
-            console.warn('Error removing mouse listener:', error)
+            // Mouse listener cleanup error handled silently
           }
         }
       } catch (error) {
-        console.warn('Mouse tracking not available:', error)
+        // Mouse tracking initialization error handled silently
       }
     }
   }, [mouseX, mouseY, prefersReducedMotion])
